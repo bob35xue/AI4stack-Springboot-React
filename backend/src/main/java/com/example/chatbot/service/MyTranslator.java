@@ -38,7 +38,10 @@ public class MyTranslator implements Translator<String, Classifications> {
         try {
             InputStream is = getClass().getResourceAsStream("/vocab.txt");
             List<String> vocabList = new BufferedReader(new InputStreamReader(is)).lines().collect(Collectors.toList());
-            vocabulary = new DefaultVocabulary(vocabList);
+            vocabulary = DefaultVocabulary.builder()
+                .add(vocabList)
+                .optUnknownToken("[UNK]")
+                .build();
             tokenizer = new BertTokenizer();
         } catch (Exception e) {
             throw new RuntimeException(e);

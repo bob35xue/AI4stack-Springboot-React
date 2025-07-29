@@ -27,6 +27,7 @@ public class User {
     private boolean isSuperuser;
 
     @OneToMany(mappedBy = "user")
+    @com.fasterxml.jackson.annotation.JsonIgnore
     private List<Issue> issues;
 
     public int getId() {

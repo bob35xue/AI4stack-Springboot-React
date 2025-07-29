@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import axios from 'axios';
+import apiClient from '../api';
 
 const AdminDashboardPage = () => {
   const [issues, setIssues] = useState([]);
@@ -19,7 +19,7 @@ const AdminDashboardPage = () => {
 
   const fetchCatalog = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/products');
+      const response = await apiClient.get('/products');
       setCatalogOptions(response.data);
     } catch (error) {
       console.error('Failed to fetch catalog:', error);
@@ -29,7 +29,7 @@ const AdminDashboardPage = () => {
 
   const fetchIssues = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/issues', {
+      const response = await apiClient.get('/issues', {
         params: { query: searchQuery, user_id: selectedUser === '' ? 0 : selectedUser, product_code: selectedCatalog === '' ? 0 : selectedCatalog }
       });
       setIssues(response.data);
@@ -41,10 +41,7 @@ const AdminDashboardPage = () => {
 
   const fetchUnknownQueries = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/issues/unknown', {
-        params: { resolved: false },
-        withCredentials: true
-      });
+      const response = await apiClient.get('/issues/unknown', { params: { resolved: false } });
       setUnknownQueries(response.data);
     } catch (error) {
       console.error('Failed to fetch unknown queries:', error);
@@ -54,7 +51,7 @@ const AdminDashboardPage = () => {
 
   const fetchUsers = useCallback(async () => {
     try {
-      const response = await axios.get('http://localhost:8000/users');
+      const response = await apiClient.get('/users');
       setUsers(response.data);
     } catch (error) {
       console.error('Failed to fetch users:', error);
@@ -87,9 +84,9 @@ const AdminDashboardPage = () => {
     }
 
     try {
-      await axios.put(`http://localhost:8000/issues/unknown/${queryId}`, {
+      await apiClient.put(`/issues/unknown/${queryId}`, {
         admin_response: adminResponse
-      }, { withCredentials: true });
+      });
       
       setMessage('Query resolved successfully');
       setCurrentQuery(null);
@@ -104,9 +101,7 @@ const AdminDashboardPage = () => {
   const handleRetrainModel = async () => {
     setRetrainingStatus('loading');
     try {
-      const response = await axios.post('http://localhost:8000/issues/retrain', {}, 
-        { withCredentials: true }
-      );
+      const response = await apiClient.post('/issues/retrain', {});
       setMessage(response.data.message);
       setRetrainingStatus('success');
     } catch (error) {

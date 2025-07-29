@@ -1,26 +1,22 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import apiClient from '../api';
 
 const ChatbotPage = () => {
   const [query, setQuery] = useState('');
   const [messages, setMessages] = useState([]);
   const [error, setError] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!query.trim() || isLoading) return;
     
+    setIsLoading(true);
+    setError('');
+
     try {
       console.log('Sending query:', query);
-      const response = await axios.post(
-        'http://localhost:8000/issues/classify/', 
-        { query: query },
-        { 
-          withCredentials: true,  // Important for sending/receiving cookies
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        }
-      );
+      const response = await apiClient.post('/issues/classify', { query: query });
 
       // Add the new message to the chat history
       setMessages([...messages, {
@@ -35,17 +31,27 @@ const ChatbotPage = () => {
 
       // Clear the input field
       setQuery('');
-      setError('');
     } catch (error) {
       console.error('Failed to send query:', error);
       
-      if (error.response?.status === 401) {
-        setError('Please log in to use the chatbot');
-        // Optionally redirect to login page
-        // window.location.href = '/login';
+      if (error.response) {
+        const { status, data } = error.response;
+        let errorMessage = 'An error occurred.';
+        if (status === 401) {
+          errorMessage = 'Authentication error. Please log in again.';
+        } else if (status === 500) {
+          errorMessage = data?.message || data?.detail || 'An internal server error occurred. Please check the server logs.';
+        } else {
+          errorMessage = data?.detail || data?.message || `Request failed with status code ${status}.`;
+        }
+        setError(errorMessage);
+      } else if (error.request) {
+        setError('Network error. Could not connect to the server.');
       } else {
-        setError(error.response?.data?.detail || 'Failed to get response from chatbot');
+        setError(`An unexpected error occurred: ${error.message}`);
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -72,7 +78,9 @@ const ChatbotPage = () => {
             <p style={{ fontWeight: 'bold' }}>You: {msg.query}</p>
             <p>Bot: {msg.response}</p>
             <div style={{ fontSize: '0.8em', color: '#666' }}>
-              <p>Product: {msg.productName} (Code: {msg.productCode})</p>
+              {msg.productName && (
+                <p>Product: {msg.productName} (Code: {msg.productCode})</p>
+              )}
               {msg.confidence !== undefined && (
                 <p>Confidence: {(msg.confidence * 100).toFixed(1)}%</p>
               )}
@@ -101,9 +109,11 @@ const ChatbotPage = () => {
         <input
           type="text"
           value={query}
+          disabled={isLoading}
           onChange={(e) => setQuery(e.target.value)}
           placeholder="Type your message..."
           style={{
+            backgroundColor: isLoading ? '#f0f0f0' : 'white',
             flex: 1,
             padding: '10px',
             borderRadius: '4px',
@@ -111,17 +121,18 @@ const ChatbotPage = () => {
           }}
         />
         <button 
+          disabled={isLoading}
           type="submit"
           style={{
             padding: '10px 20px',
-            backgroundColor: '#4CAF50',
+            backgroundColor: isLoading ? '#cccccc' : '#4CAF50',
             color: 'white',
             border: 'none',
             borderRadius: '4px',
-            cursor: 'pointer'
+            cursor: isLoading ? 'not-allowed' : 'pointer'
           }}
         >
-          Send
+          {isLoading ? 'Sending...' : 'Send'}
         </button>
       </form>
     </div>

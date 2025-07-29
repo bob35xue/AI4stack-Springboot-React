@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import apiClient from '../api';
 
 const LoginPage = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -12,16 +12,7 @@ const LoginPage = ({ onLogin }) => {
     e.preventDefault();
     try {
       console.log('Attempting login with:', { email, password });
-      const response = await axios.post('http://localhost:8000/users/login', 
-        { email, password },
-        { 
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          withCredentials: true
-        }
-      );
+      const response = await apiClient.post('/users/login', { email, password });
       
       const user = response.data;
       console.log('Login successful, user data:', user);

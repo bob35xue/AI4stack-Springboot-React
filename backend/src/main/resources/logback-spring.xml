@@ -1,8 +1,8 @@
-
 <configuration>
 
-    <property name="LOGS" value="./logs" />
-
+    <!-- Original absolute path for logs -->
+    <!-- <property name="LOGS" value="D:/W3s/Java4B/Chatbot4stack-Springboot-React/backend4c/app/data4c/logs" /> -->
+    <property name="LOGS" value="app\\data4c\\logs" />
     <appender name="Console" class="ch.qos.logback.core.ConsoleAppender">
         <layout class="ch.qos.logback.classic.PatternLayout">
             <Pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</Pattern>
@@ -11,13 +11,13 @@
 
     <appender name="RollingFile" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <file>${LOGS}/spring-boot-logger.log</file>
+        <append>true</append>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <Pattern>%d %p %C{1.} [%t] %m%n</Pattern>
         </encoder>
-
         <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
             <!-- rollover daily -->
-            <fileNamePattern>${LOGS}/archived/spring-boot-logger-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <fileNamePattern>${LOGS}/spring-boot-logger-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
                 <maxFileSize>10MB</maxFileSize>
             </timeBasedFileNamingAndTriggeringPolicy>
@@ -29,5 +29,7 @@
         <appender-ref ref="RollingFile" />
         <appender-ref ref="Console" />
     </root>
+
+    <statusListener class="ch.qos.logback.core.status.OnConsoleStatusListener" />
 
 </configuration>
