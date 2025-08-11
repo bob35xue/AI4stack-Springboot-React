@@ -94,7 +94,7 @@ Chatbot4stack-Springboot-React/
 │   └── src/main/resources/
 │       ├── application.properties  # Spring Boot configuration (DB, etc.)
 │       ├── logback-spring.xml    # Logging configuration
-│       ├── model/model_distill_bert.pt # The ML model file
+│       ├── model/model_distill_bert.pt # The ML model file, training code at https://github.com/bob35xue/GBC-Selected-Projects/tree/main/Customer_Queries_Text_Classification
 │       └── vocab.txt             # Vocabulary for the ML model tokenizer
 ├── frontend/
 │   ├── package.json            # NPM configuration, lists all frontend dependencies
